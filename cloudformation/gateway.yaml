@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: "Java Shouty Echo API Gateway"
+
+Resources:
+  ApiGateway:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: Java Shouty Echo Demo
+        Description: Java Shouty Echo API
+
+  ApiGatewayRootResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: resource1
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref ApiGatewayRootResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        Type: MOCK
+        IntegrationHttpMethod: GET
+
+
+  ApiGatewayRootResource2:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: resource2
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayMethod2:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref ApiGatewayRootResource2
+      RestApiId: !Ref ApiGateway
+      Integration:
+        Type: MOCK
+        IntegrationHttpMethod: GET
+  ApiGatewayDeployment5:
+    Type: AWS::ApiGateway::Deployment
+    DeletionPolicy: Retain
+    DependsOn:
+      - ApiGatewayMethod
+      - ApiGatewayMethod2
+    Properties:
+      Description: "Test Deployment1"
+      RestApiId: !Ref ApiGateway
+
+  # Enable logging of all HTTP requests
+  ApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiGatewayDeployment5
+      RestApiId: !Ref ApiGateway
+      StageName: TEST
